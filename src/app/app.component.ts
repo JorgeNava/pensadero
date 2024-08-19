@@ -1,40 +1,29 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
-import { AngularFireDatabase } from '@angular/fire/compat/database';
+import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import TagCloud, { TagCloudOptions } from 'TagCloud';
-
-interface Pensamiento {
-  texto: string;
-}
+import { ThoughtsService } from './thoughts.service';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+  styleUrls: ['./app.component.scss'],
+  standalone: true,
+  imports: [CommonModule]
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit {
   @ViewChild('tagCloudContainer', { static: false }) tagCloudContainer!: ElementRef;
-  myTags: string[] = [];
+  thoughts: any[] = [];
 
-  constructor(
-    private db: AngularFireDatabase,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  constructor(private thoughtsService: ThoughtsService) {}
 
   ngOnInit() {
-    this.db.list<Pensamiento>('/pensamientos') 
-    .valueChanges()
-    .subscribe((pensamientos: Pensamiento[]) => { 
-      this.myTags = pensamientos.map(pensamiento => pensamiento.texto); 
-    });
-  }
+    this.thoughtsService.getThoughts().subscribe((data) => {
+      this.thoughts = data;
 
-  ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) { 
-      window.onload = () => { 
+      if (this.thoughts.length > 0 && this.tagCloudContainer) {
+        // Limpiar el contenedor del tag cloud viejo
+        this.tagCloudContainer.nativeElement.innerHTML = '';
+
         const options: TagCloudOptions = {
           radius: 150,
           maxSpeed: 'fast',
@@ -42,12 +31,15 @@ export class AppComponent implements AfterViewInit {
           keep: true
         };
 
-        TagCloud(this.tagCloudContainer.nativeElement, this.myTags, options);
+        const thoughtTexts = this.thoughts.map((thought) => thought.texto);
+        TagCloud(this.tagCloudContainer.nativeElement, thoughtTexts, options);
 
-        const colors = ['#34A853', '#FBBC05', '#4285F4', '#7FBC00', 'FFBA01', '01A6F0'];
+        const colors = ['#34A853', '#FBBC05', '#4285F4', '#7FBC00', '#FFBA01', '#01A6F0'];
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         this.tagCloudContainer.nativeElement.style.color = randomColor;
-      };
-    }
+      } else {
+        console.log("No se encontraron pensamientos.");
+      }
+    });
   }
 }
