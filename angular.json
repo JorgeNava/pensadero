@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "pensaderov2": {
+    "pensadero": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,8 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/pensaderov2",
+            "outputPath": "dist/pensadero",
+            "baseHref": "/pensadero/",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -64,10 +65,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "pensaderov2:build:production"
+              "buildTarget": "pensadero:build:production"
             },
             "development": {
-              "buildTarget": "pensaderov2:build:development"
+              "buildTarget": "pensadero:build:development"
             }
           },
           "defaultConfiguration": "development"
