@@ -1,4 +1,21 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .words-sphere {
   display: flex;
   justify-content: center;
+  flex-grow: 1;
+}
+
+.tagcloud--item:hover {
+  cursor: pointer !important;
+}
+
+mat-paginator {
+  width: 100%;
+  align-self: flex-end;
+  margin-top: auto;
 }

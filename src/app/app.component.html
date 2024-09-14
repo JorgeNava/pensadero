@@ -1,2 +1,10 @@
 <div *ngIf="thoughts.length === 0">No hay pensamientos disponibles.</div>
 <div #tagCloudContainer class="words-sphere"></div> 
+
+<mat-paginator 
+  [length]="totalThoughts"
+  [pageSize]="pageSize"
+  aria-label="Select page"
+  [hidePageSize]="true"
+  (page)="onPageChange($event)">
+</mat-paginator>

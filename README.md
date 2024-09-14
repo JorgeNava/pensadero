@@ -13,3 +13,18 @@ ng build --configuration production
 
 ## Github Pages delpoyment
 npx angular-cli-ghpages --dir=dist/pensadero/browser
+
+
+## TO-DO
+- Click on thought and it will open, enabling to read it completly or remove the thought.
+- Make thougts-sphere bigger and prettier.
+- Add 3D animated background.
+- Add logo / name at the top.
+- Add copy-write and made-by.
+
+
+Components:
+- Modal
+- Header
+- Logo
+- See more
