@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
   constructor(private thoughtsService: ThoughtsService, public dialog: MatDialog) {}
 
   ngOnInit() {
-    this.thoughtsService.getThoughts('static').subscribe((data) => {
+    this.thoughtsService.getThoughts('database').subscribe((data) => {
       this.thoughts = data;
       this.totalThoughts = this.thoughts.length;
 
