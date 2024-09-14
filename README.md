@@ -14,6 +14,8 @@ ng build --configuration production
 ## Github Pages delpoyment
 npx angular-cli-ghpages --dir=dist/pensadero/browser
 
+## Site
+https://jorgenava.github.io/pensadero/
 
 ## TO-DO
 - Click on thought and it will open, enabling to read it completly or remove the thought.
@@ -24,7 +26,6 @@ npx angular-cli-ghpages --dir=dist/pensadero/browser
 
 
 Components:
-- Modal
 - Header
 - Logo
 - See more
