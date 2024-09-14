@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   thoughts: any[] = [];
   paginatedThoughts: any[] = [];
-  pageSize: number = 15; // Siempre 15 pensamientos por esfera
+  pageSize: number = 20;
   totalThoughts: number = 0;
 
   constructor(private thoughtsService: ThoughtsService, public dialog: MatDialog) {}
@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
       this.totalThoughts = this.thoughts.length;
 
       if (this.totalThoughts > 0 && this.tagCloudContainer) {
-        this.updateTagCloud(0); // Muestra la primera página de pensamientos
+        this.updateTagCloud(0);
       } else {
         console.log("No se encontraron pensamientos.");
       }
@@ -57,7 +57,7 @@ export class AppComponent implements OnInit {
     this.tagCloudContainer.nativeElement.innerHTML = '';
 
     const options: TagCloudOptions = {
-      radius: 150,
+      radius: 400,
       maxSpeed: 'fast',
       initSpeed: 'fast',
       keep: true
@@ -66,20 +66,18 @@ export class AppComponent implements OnInit {
     const thoughtTexts = this.paginatedThoughts.map((thought) => thought.texto);
     TagCloud(this.tagCloudContainer.nativeElement, thoughtTexts, options);
 
-    // Asignar eventos de clic a los elementos generados
-    const words = this.tagCloudContainer.nativeElement.querySelectorAll('span'); // Seleccionamos los spans generados por TagCloud
+    const words = this.tagCloudContainer.nativeElement.querySelectorAll('span');
     words.forEach((wordElement: HTMLElement, index: number) => {
       wordElement.addEventListener('click', () => {
-        this.openThoughtDialog(this.paginatedThoughts[index]); // Abrir el diálogo con el pensamiento correspondiente
+        this.openThoughtDialog(this.paginatedThoughts[index]);
       });
     });
 
-    const colors = ['#34A853', '#FBBC05', '#4285F4', '#7FBC00', '#FFBA01', '#01A6F0'];
+    const colors = ['#001f3f', "#3D3D3D", "#39CCCC"];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     this.tagCloudContainer.nativeElement.style.color = randomColor;
   }
 
-  // Método para abrir el diálogo y mostrar el contenido completo del pensamiento
   openThoughtDialog(thought: any): void {
     this.dialog.open(ThoughtDialogComponent, {
       data: { thought: thought },

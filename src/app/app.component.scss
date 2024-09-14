@@ -1,20 +1,33 @@
 :host {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
+  background-color: #eceef6;
+}
+
+.header {
+  width: 100%;
+  margin-left: 5vw;
 }
 
 .words-sphere {
   display: flex;
   justify-content: center;
-  flex-grow: 1;
+  align-items: center;
+  position: relative;
 }
 
-.tagcloud--item:hover {
-  cursor: pointer !important;
+.words-sphere span {
+  font-size: 1.5rem;
+  margin: 15px;
+  cursor: pointer;
 }
 
 mat-paginator {
+  position: fixed;
+  bottom: 0px;
   width: 100%;
   align-self: flex-end;
   margin-top: auto;
