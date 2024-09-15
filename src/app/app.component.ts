@@ -37,10 +37,14 @@ export class AppComponent implements OnInit {
   constructor(private thoughtsService: ThoughtsService, public dialog: MatDialog) {}
 
   ngOnInit() {
-    this.thoughtsService.getThoughts('database').subscribe((data) => {
+    const isMobile = window.innerWidth <= 768;
+  
+    this.pageSize = isMobile ? 7 : 20;
+  
+    this.thoughtsService.getThoughts('static').subscribe((data) => {
       this.thoughts = data;
       this.totalThoughts = this.thoughts.length;
-
+  
       if (this.totalThoughts > 0 && this.tagCloudContainer) {
         this.updateTagCloud(0);
       } else {
@@ -48,31 +52,34 @@ export class AppComponent implements OnInit {
       }
     });
   }
+  
 
   updateTagCloud(pageIndex: number) {
     const startIndex = pageIndex * this.pageSize;
     const endIndex = Math.min(startIndex + this.pageSize, this.totalThoughts);
     this.paginatedThoughts = this.thoughts.slice(startIndex, endIndex);
-
+  
     this.tagCloudContainer.nativeElement.innerHTML = '';
-
+  
+    const isMobile = window.innerWidth <= 768;
+  
     const options: TagCloudOptions = {
-      radius: 400,
+      radius: isMobile ? 200 : 400,
       maxSpeed: 'fast',
       initSpeed: 'fast',
       keep: true
     };
-
+  
     const thoughtTexts = this.paginatedThoughts.map((thought) => thought.texto);
     TagCloud(this.tagCloudContainer.nativeElement, thoughtTexts, options);
-
+  
     const words = this.tagCloudContainer.nativeElement.querySelectorAll('span');
     words.forEach((wordElement: HTMLElement, index: number) => {
       wordElement.addEventListener('click', () => {
         this.openThoughtDialog(this.paginatedThoughts[index]);
       });
     });
-
+  
     const colors = ['#001f3f', "#3D3D3D", "#39CCCC"];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     this.tagCloudContainer.nativeElement.style.color = randomColor;

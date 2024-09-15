@@ -18,8 +18,6 @@ npx angular-cli-ghpages --dir=dist/pensadero/browser
 https://jorgenava.github.io/pensadero/
 
 ## TO-DO
-- Make thougts-sphere bigger and prettier.
-- Add 3D animated background.
 - Add logo / name at the top. (header)
 - Add copy-write and made-by. (footer)
 
@@ -29,3 +27,5 @@ https://jorgenava.github.io/pensadero/
 - Enable edit thoughts (login required)
 - Enable remove thoughts (login required)
 - Enable thoughts dates
+
+ng build --configuration production && npx angular-cli-ghpages --dir=dist/pensadero/browser

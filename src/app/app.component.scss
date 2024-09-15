@@ -1,10 +1,12 @@
 :host {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between; /* Para que el paginador esté al final */
   align-items: center;
-  min-height: 100vh;
   background-color: #eceef6;
+  width: 100vw; /* Asegura que el ancho siempre ocupe toda la ventana */
+  height: 100vh; /* Asegura que la altura ocupe toda la ventana */
+  overflow-x: hidden; /* Evita el scroll horizontal */
 }
 
 .header {
@@ -17,18 +19,17 @@
   justify-content: center;
   align-items: center;
   position: relative;
+  flex-grow: 1; /* Permite que crezca ocupando el espacio disponible */
 }
 
 .words-sphere span {
   font-size: 1.5rem;
-  margin: 15px;
   cursor: pointer;
 }
 
 mat-paginator {
-  position: fixed;
-  bottom: 0px;
   width: 100%;
   align-self: flex-end;
   margin-top: auto;
+  bottom: 0;
 }
