@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
   
     this.pageSize = isMobile ? 7 : 20;
   
-    this.thoughtsService.getThoughts('static').subscribe((data) => {
+    this.thoughtsService.getThoughts('database').subscribe((data) => {
       this.thoughts = data;
       this.totalThoughts = this.thoughts.length;
   
