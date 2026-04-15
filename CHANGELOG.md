@@ -25,6 +25,7 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 
 ### Changed
 - **Header** — Rediseñado con logo (icono psychology), título con gradiente, y acciones (búsqueda + random)
+- **Responsive mobile** — Header en dos filas (logo + search), búsqueda full-width, controles compactos, diálogo ajustado al viewport
 - **Diálogo de pensamiento** — Rediseñado con tema oscuro, iconos en metadata, tags estilizados y botón de copiar
 - **Tag cloud** — Velocidad ajustada a `normal`, radio optimizado (350px desktop / 180px mobile), hover con glow
 - **Paginador** — Estilizado para tema oscuro con colores del tema
