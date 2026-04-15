@@ -1,14 +1,99 @@
-<div class="header">
-  <h1>El Pensadero</h1>
+<!-- Background ambient glow -->
+<div class="ambient-glow"></div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">
+      <span class="material-symbols-outlined logo-icon">psychology</span>
+      <h1 class="title">El Pensadero</h1>
+    </div>
+    <span class="thought-count" *ngIf="!isLoading && thoughts.length > 0">
+      {{ filteredThoughts.length }} pensamiento{{ filteredThoughts.length !== 1 ? 's' : '' }}
+    </span>
+  </div>
+  <div class="header-actions">
+    <div class="search-container" [class.active]="searchActive">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar pensamientos..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()"
+        (focus)="searchActive = true"
+        (blur)="searchActive = searchQuery.length > 0"
+      />
+      <span
+        class="material-symbols-outlined clear-icon"
+        *ngIf="searchQuery"
+        (click)="clearSearch()">
+        close
+      </span>
+    </div>
+    <button class="btn-random" (click)="openRandomThought()" *ngIf="filteredThoughts.length > 0" title="Pensamiento aleatorio">
+      <span class="material-symbols-outlined">casino</span>
+    </button>
+  </div>
+</header>
+
+<!-- Loading state -->
+<div class="loading-container" *ngIf="isLoading">
+  <div class="loading-sphere">
+    <div class="loading-ring"></div>
+    <span class="material-symbols-outlined loading-icon">psychology</span>
+  </div>
+  <p class="loading-text">Cargando pensamientos...</p>
 </div>
 
-<div *ngIf="thoughts.length === 0">No hay pensamientos disponibles.</div>
-<div #tagCloudContainer class="words-sphere"></div> 
+<!-- Empty state -->
+<div class="empty-state" *ngIf="!isLoading && filteredThoughts.length === 0">
+  <span class="material-symbols-outlined empty-icon">lightbulb</span>
+  <p class="empty-title" *ngIf="searchQuery">No se encontraron pensamientos</p>
+  <p class="empty-title" *ngIf="!searchQuery">No hay pensamientos disponibles</p>
+  <p class="empty-subtitle" *ngIf="searchQuery">Intenta con otra búsqueda</p>
+</div>
 
-<mat-paginator 
-  [length]="totalThoughts"
-  [pageSize]="pageSize"
-  aria-label="Select page"
-  [hidePageSize]="true"
-  (page)="onPageChange($event)">
-</mat-paginator>
+<!-- Tag cloud -->
+<div class="cloud-wrapper" *ngIf="!isLoading && filteredThoughts.length > 0">
+  <div #tagCloudContainer class="words-sphere"></div>
+
+  <!-- Zoom controls -->
+  <div class="zoom-controls">
+    <button class="zoom-btn" (click)="zoomIn()" title="Acercar">
+      <span class="material-symbols-outlined">add</span>
+    </button>
+    <span class="zoom-label">{{ (zoomLevel * 100) | number:'1.0-0' }}%</span>
+    <button class="zoom-btn" (click)="zoomOut()" title="Alejar">
+      <span class="material-symbols-outlined">remove</span>
+    </button>
+  </div>
+</div>
+
+<!-- Footer with controls -->
+<footer class="footer" *ngIf="!isLoading && filteredThoughts.length > 0">
+  <div class="footer-controls">
+    <div class="density-control">
+      <span class="material-symbols-outlined density-icon">grain</span>
+      <mat-slider
+        [min]="3"
+        [max]="totalFilteredThoughts"
+        [step]="1"
+        [discrete]="true"
+        class="density-slider">
+        <input matSliderThumb
+          [value]="pageSize"
+          (valueChange)="onDensityChange($event)" />
+      </mat-slider>
+      <span class="density-label">{{ pageSize }}</span>
+    </div>
+
+    <mat-paginator
+      [length]="totalFilteredThoughts"
+      [pageSize]="pageSize"
+      aria-label="Select page"
+      [hidePageSize]="true"
+      (page)="onPageChange($event)">
+    </mat-paginator>
+  </div>
+</footer>

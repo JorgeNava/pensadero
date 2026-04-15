@@ -1,4 +1,129 @@
 /* You can add global styles to this file, and also import other style files */
 
+:root {
+  /* Fonts */
+  --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'DM Serif Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* Background */
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-glass: rgba(255, 255, 255, 0.06);
+  --border-glass: rgba(255, 255, 255, 0.08);
+
+  /* Text */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Accents */
+  --accent-primary: #818cf8;
+  --accent-secondary: #a78bfa;
+  --accent-glow: rgba(129, 140, 248, 0.3);
+  --accent-teal: #2dd4bf;
+  --accent-rose: #fb7185;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 3px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+  50% { box-shadow: 0 0 40px var(--accent-glow), 0 0 60px rgba(129, 140, 248, 0.15); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-glass) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+.mat-mdc-paginator {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-paginator-icon {
+  fill: var(--text-secondary) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-icon-button:not([disabled]) {
+  color: var(--accent-primary) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-icon-button:not([disabled]) .mat-mdc-paginator-icon {
+  fill: var(--accent-primary) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-paginator-range-label {
+  color: var(--text-muted) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.mat-mdc-slider .mdc-slider__track--active_fill {
+  border-color: var(--accent-primary) !important;
+}
+.mat-mdc-slider .mdc-slider__track--inactive {
+  background-color: var(--border-glass) !important;
+}
+.mat-mdc-slider .mdc-slider__thumb-knob {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+}
+.mat-mdc-slider .mdc-slider__value-indicator {
+  background-color: var(--accent-primary) !important;
+}
+.mat-mdc-slider .mdc-slider__value-indicator::before {
+  border-top-color: var(--accent-primary) !important;
+}
