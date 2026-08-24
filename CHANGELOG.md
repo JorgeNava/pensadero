@@ -7,6 +7,10 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 ## [Unreleased]
 
 ### Fixed
+- **La esfera se veía plana** — TagCloud rotaba los puntos pero no dejaba tocar la profundidad: todas las hebras salían igual de nítidas y del mismo tamaño, así que la nube se leía como texto disperso sobre un plano. Se reemplazó por un renderer propio (`sphere.ts`) donde cada hebra sabe qué tan lejos está.
+- **Atinarle a una hebra era cuestión de suerte** — Al apuntar cualquiera, la esfera ahora frena suave y la hebra sale del fondo.
+- **La esfera se salía del área** — El radio se calculaba contra la ventana; ahora se mide el contenedor real y se descuenta lo que crecen las hebras del frente por la perspectiva.
+- **El anillo de la cuenca cortaba el texto** — Un borde nítido cruzando las hebras del frente las partía a la mitad. La cuenca ya no dibuja bordes, solo luz.
 - **Hebras ilegibles en la esfera** — Se le estaba pasando a TagCloud el texto completo de cada pensamiento (hasta 1,759 caracteres). Los párrafos se envolvían y se encimaban unos sobre otros hasta que no se leía nada. Ahora cada hebra es una sola línea recortada en palabra completa: 46 caracteres en desktop, 28 en tablet, 18 en teléfono.
 - **Instancias de TagCloud acumuladas** — Cada cambio de página creaba una nube nueva sin destruir la anterior; los loops de animación viejos seguían corriendo sobre elementos ya borrados. Ahora se llama `destroy()` antes de reconstruir.
 - **Tarjetas desbordadas** — Faltaba `box-sizing: border-box` global, así que el texto de las tarjetas se salía del borde derecho.
@@ -15,6 +19,9 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - **Presupuesto de estilos en el build de producción** — Subido a 14 kB / 20 kB por componente; el build de CI fallaba.
 
 ### Added
+- **Profundidad de campo en la esfera** — Cada hebra sabe su distancia, y de ahí salen su tamaño, su opacidad, su desenfoque y quién tapa a quién. Es lo que le da cuerpo a la nube. El desenfoque se modera en pantallas chicas, donde el texto ya es pequeño.
+- **Reparto de Fibonacci** — Los puntos se distribuyen parejo sobre la esfera en vez de al azar: sin huecos ni amontonamientos, que era otra fuente de encimados.
+- **Esfera elíptica** — Se achata para llenar el área disponible (hasta 1.7 : 1). Además de aprovechar el ancho, separa las hebras horizontalmente, que es donde se estorban.
 - **Vista Archivo** — Tarjetas agrupadas por mes para leer y buscar de verdad, además de la esfera para dejarse llevar. Los pensamientos de una línea se componen en la serif.
 - **Riel de temas** — Los 12 tags más usados como filtro, uniendo variantes de escritura ("Filosofía" / "Filosofia", "Proyectos Personales" / "Proyectos personales").
 - **El color dice el origen** — Plata para lo escrito, agua para lo que capturó la IA, latón para lo que llegó por SMS al pensadero viejo. Con leyenda en el pie.
@@ -25,9 +32,11 @@ El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1
 - **Accesibilidad** — Hebras y tarjetas enfocables y abribles con teclado, foco visible, `prefers-reduced-motion` detiene la rotación y las ondas.
 - **Estado de error** — Mensaje propio cuando la API no responde, en vez de una pantalla vacía.
 - **Locale es-MX** — Fechas en español.
-- **Pruebas reales** — 27 specs sobre recortes, origen, paginación de la API y navegación del lector. Las que había probaban un `title` que nunca existió.
+- **Pruebas reales** — 42 specs sobre la geometría de la esfera, recortes, origen, paginación de la API y navegación del lector. Las que había probaban un `title` que nunca existió.
 
 ### Changed
+- **TagCloud fuera** — Se elimina la dependencia; con ella se va el warning de CommonJS en el build. La esfera son ~230 líneas propias, con 20 specs sobre su matemática y su comportamiento.
+- **Las hebras son `<button>`** — Antes eran `<span>` con listeners de clic encima: sin rol, sin teclado, sin foco.
 - **Identidad visual** — Del violeta genérico sobre negro a la metáfora del pensadero: cuenca de piedra, líquido plateado, canto de latón. Tipografías Fraunces (display), Inter Tight (interfaz) y JetBrains Mono (fechas y datos).
 - **La cuenca** — La esfera ahora sale de una poza de luz con ondas lentas, dimensionada a partir del radio real de la esfera para que las dos se lean como una sola cosa.
 - **Paginador y slider de Material reemplazados** — Controles propios; se fueron los overrides con `!important`.

@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import TagCloud, { TagCloudOptions, TagCloud as TagCloudInstance } from 'TagCloud';
+import { ThoughtSphere, MAX_SCALE } from './sphere';
 import { ThoughtsService } from './thoughts.service';
 import { ThoughtDialogComponent, ReaderResult } from './thought-dialog/thought-dialog.component';
 import { ThoughtView, Origin, toView, truncate, monthLabel, tagKey } from './thought.utils';
@@ -65,8 +65,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private readonly zoomMin = 0.5;
   private readonly zoomMax = 1.8;
-  private cloud?: TagCloudInstance;
-  private baseRadius = 300;
+  private sphere?: ThoughtSphere;
+  private baseRadiusX = 300;
+  private baseRadiusY = 240;
   /** Cuántos caracteres cabe una hebra sin salirse de la pantalla. */
   private strandChars = 46;
   private measured = false;
@@ -106,7 +107,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.cloud?.destroy();
+    this.sphere?.destroy();
     window.clearTimeout(this.rebuildTimer);
     window.clearTimeout(this.resizeTimer);
   }
@@ -114,23 +115,37 @@ export class AppComponent implements OnInit, OnDestroy {
   // ─────────────────────────── derivados ───────────────────────────
 
   /**
-   * La esfera tiene que caber en la pantalla con todo y hebras. En pantallas
-   * angostas eso significa menos radio Y menos texto por hebra: si no, las
-   * frases se salen por los lados y quedan cortadas.
+   * La esfera tiene que caber en el área que le toca, con todo y hebras.
+   *
+   * Dos cosas la limitan: el alto, porque la perspectiva estira las hebras del
+   * frente hasta MAX_SCALE; y el ancho, porque una hebra es una línea de texto
+   * que sobresale del radio por la mitad de su largo. Se mide el contenedor
+   * real en vez de la ventana: el encabezado y el pie cambian de alto.
    */
   private measure() {
     const w = window.innerWidth;
-    const h = window.innerHeight;
     const narrow = w <= 768;
+    this.strandChars = w <= 430 ? 18 : narrow ? 26 : 42;
 
-    this.strandChars = w <= 430 ? 18 : w <= 768 ? 28 : 46;
-    this.baseRadius = narrow
-      ? Math.min(w * 0.36, h * 0.26)
-      : Math.min(300, w * 0.24, h * 0.3);
+    const box = this.stageEl?.nativeElement.getBoundingClientRect();
+    const areaW = box?.width || w;
+    const areaH = box?.height || window.innerHeight * 0.6;
+
+    // Ancho aproximado de la hebra más larga, a ~0.5em por carácter.
+    const charPx = narrow ? 6.2 : 7.4;
+    const halfStrand = (this.strandChars * charPx) / 2;
+
+    const fitY = Math.max(90, (areaH / 2 - 54) / MAX_SCALE);
+    const fitX = Math.max(90, (areaW / 2 - halfStrand - 16) / MAX_SCALE);
+
+    // Achatarla más de 1.7 : 1 en cualquier eje deja de leerse como volumen.
+    this.baseRadiusY = Math.min(fitY, 300);
+    this.baseRadiusX = Math.min(fitX, 420, this.baseRadiusY * 1.7);
+    this.baseRadiusY = Math.min(this.baseRadiusY, this.baseRadiusX * 1.8);
 
     // Solo al arrancar: si el usuario mueve el slider, se respeta su elección
     // aunque después cambie el tamaño de la ventana.
-    if (!this.measured && narrow) this.perSphere = 10;
+    if (!this.measured && narrow) this.perSphere = 12;
     this.measured = true;
   }
 
@@ -231,7 +246,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.mode === mode) return;
     this.mode = mode;
     if (mode === 'sphere') this.scheduleRebuild();
-    else this.cloud?.pause();
+    else this.sphere?.destroy();
   }
 
   // ─────────────────────────── esfera ───────────────────────────
@@ -285,53 +300,41 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private renderSphere() {
     const host = this.sphereEl?.nativeElement;
-    if (!host || this.mode !== 'sphere') return;
+    const stage = this.stageEl?.nativeElement;
+    if (!host || !stage || this.mode !== 'sphere') return;
 
     const items = this.pageThoughts;
-    this.cloud?.destroy();
-    this.cloud = undefined;
-    host.innerHTML = '';
+    this.sphere?.destroy();
+    this.sphere = undefined;
     if (!items.length) return;
 
+    this.measure();
+
     // Con más hebras hace falta más radio, o se encinan unas sobre otras.
-    const crowding = 1 + Math.max(0, items.length - 14) * 0.024;
-    const radius = Math.round(this.baseRadius * this.zoom * crowding);
+    const crowding = 1 + Math.max(0, items.length - 14) * 0.02;
+    const grow = this.zoom * crowding;
+    const radiusX = Math.round(this.baseRadiusX * grow);
+    const radiusY = Math.round(this.baseRadiusY * grow);
+    stage.style.setProperty('--orb-x', `${radiusX}px`);
+    stage.style.setProperty('--orb-y', `${radiusY}px`);
 
-    // La cuenca se dibuja a partir del radio, para que la esfera siempre
-    // parezca salir de ella y no flotar aparte.
-    this.stageEl?.nativeElement.style.setProperty('--orb', `${radius}px`);
-
-    const options: TagCloudOptions = {
-      radius,
-      maxSpeed: 'slow',
-      initSpeed: this.reducedMotion ? 'slow' : 'normal',
-      keep: !this.reducedMotion,
-      itemClass: 'strand',
-      useItemInlineStyles: true,
-    };
-
-    const labels = items.map((t) => truncate(t.flat, this.strandChars));
-    this.cloud = TagCloud(host, labels, options) as TagCloudInstance;
-    if (this.reducedMotion) this.cloud.pause();
-
-    // Las hebras cortas pesan más: un pensamiento de dos palabras se lee grande.
-    const nodes = host.querySelectorAll<HTMLElement>('span');
-    nodes.forEach((node, i) => {
-      const thought = items[i];
-      if (!thought) return;
-      node.classList.add(`from-${thought.origin}`, `w-${this.weightOf(thought)}`);
-      node.setAttribute('role', 'button');
-      node.setAttribute('tabindex', '0');
-      node.setAttribute('title', thought.excerpt);
-      node.setAttribute('aria-label', `Abrir pensamiento: ${thought.excerpt}`);
-      node.addEventListener('click', () => this.openThought(thought));
-      node.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          this.openThought(thought);
-        }
-      });
-    });
+    this.sphere = new ThoughtSphere(
+      host,
+      items.map((thought) => ({
+        label: truncate(thought.flat, this.strandChars),
+        origin: `from-${thought.origin}`,
+        weight: this.weightOf(thought),
+        full: thought.excerpt,
+        onSelect: () => this.openThought(thought),
+      })),
+      {
+        radiusX,
+        radiusY,
+        surface: stage,
+        depthBlur: window.innerWidth <= 768 ? 1.5 : 2.4,
+        reducedMotion: this.reducedMotion,
+      },
+    );
   }
 
   private weightOf(t: ThoughtView): 'lg' | 'md' | 'sm' {

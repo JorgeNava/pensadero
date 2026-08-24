@@ -41,10 +41,7 @@
               "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.scss"
             ],
-            "scripts": [],
-            "allowedCommonJsDependencies": [
-              "TagCloud"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {

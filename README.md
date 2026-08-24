@@ -10,7 +10,7 @@ Dos formas de entrar: **Esfera**, para dejarse llevar entre las hebras que orbit
 
 - **Framework** — Angular 18 (standalone components)
 - **UI** — Angular Material 18, SCSS
-- **Visualización** — [TagCloud.js](https://github.com/mcc108/TagCloud) (esfera 3D de texto)
+- **Visualización** — Renderer propio (`src/app/sphere.ts`): reparto de Fibonacci, perspectiva y profundidad de campo, sin dependencias
 - **Backend** — API REST (AWS API Gateway + Lambda + DynamoDB)
 - **Deploy** — GitHub Pages via GitHub Actions
 
@@ -79,6 +79,7 @@ src/
 ├── app/
 │   ├── app.component.*          # Esfera, archivo, búsqueda y filtros
 │   ├── app.config.ts            # HttpClient, animaciones y locale es-MX
+│   ├── sphere.ts                # La esfera: Fibonacci, perspectiva y profundidad de campo
 │   ├── thought.utils.ts         # Origen, recortes, agrupación por mes, normalización de tags
 │   ├── highlight.pipe.ts        # Resalta coincidencias de búsqueda (escapa el texto antes)
 │   ├── thoughts.service.ts      # Servicio para obtener pensamientos de la API
@@ -93,6 +94,9 @@ src/
 
 **Esfera**
 - Cada pensamiento es una hebra de una sola línea: el texto se recorta en palabra completa según el ancho de la pantalla, así que nunca se encima ni se sale
+- Profundidad de campo real: la distancia de cada hebra decide su tamaño, su opacidad, su desenfoque y quién tapa a quién — eso es lo que le da cuerpo a la nube
+- Al apuntar una hebra la esfera frena y esa hebra sale del fondo, para poder atinarle
+- La esfera se achata para llenar el área disponible, lo que además separa las hebras horizontalmente
 - El tamaño va al revés de la extensión — los pensamientos de dos palabras se leen en grande
 - El color dice el origen: plata (escrito), agua (IA), latón (SMS)
 - Zoom con botones o scroll; slider de hebras por esfera; paginación con flechas del teclado
