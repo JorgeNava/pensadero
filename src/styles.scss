@@ -1,136 +1,147 @@
-/* You can add global styles to this file, and also import other style files */
+/* ─────────────────────────────────────────────────────────────
+   El Pensadero — tokens globales
+
+   La metáfora es un pensadero: una cuenca de piedra con líquido
+   plateado del que salen hebras de memoria. De ahí la paleta.
+
+   El color dice de dónde vino el pensamiento, no es decoración:
+     plata  → lo escribió Jorge
+     agua   → lo capturó la IA
+     latón  → llegó por SMS al pensadero viejo
+   El latón además marca todo lo temporal (fechas, meses, conteos).
+   ───────────────────────────────────────────────────────────── */
 
 :root {
-  /* Fonts */
-  --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-heading: 'DM Serif Display', Georgia, serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  /* Tipografías */
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-ui: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
 
-  /* Background */
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #111827;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --bg-glass: rgba(255, 255, 255, 0.06);
-  --border-glass: rgba(255, 255, 255, 0.08);
+  /* Cuenca */
+  --abyss: #06090f;
+  --basin: #0b111b;
+  --stone: #121a27;
+  --edge: rgba(228, 235, 245, 0.09);
+  --edge-strong: rgba(228, 235, 245, 0.16);
+  --surface: rgba(228, 235, 245, 0.04);
+  --surface-hi: rgba(228, 235, 245, 0.08);
 
-  /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  /* Hebras */
+  --silver: #e4ebf5;
+  --mist: #8b9cb3;
+  --mist-dim: #5b6a7d;
 
-  /* Accents */
-  --accent-primary: #818cf8;
-  --accent-secondary: #a78bfa;
-  --accent-glow: rgba(129, 140, 248, 0.3);
-  --accent-teal: #2dd4bf;
-  --accent-rose: #fb7185;
+  /* Acentos */
+  --liquid: #6fd8d1;
+  --liquid-dim: #3f8f8b;
+  --liquid-glow: rgba(111, 216, 209, 0.28);
+  --brass: #d6a85c;
+  --brass-dim: #8a6c39;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  /* Origen del pensamiento */
+  --origin-self: #e4ebf5;
+  --origin-ai: #6fd8d1;
+  --origin-sms: #d6a85c;
 
-  /* Radii */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  /* Sombras */
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.62);
 
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* Radios */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  /* Transiciones */
+  --t-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-norm: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-slow: 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-html, body { height: 100%; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+}
 
 body {
   margin: 0;
-  font-family: var(--font-body);
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  background: var(--abyss);
+  color: var(--silver);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.01em;
 }
 
-*::-webkit-scrollbar {
-  width: 6px;
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+  user-select: none;
 }
-*::-webkit-scrollbar-track {
-  background: transparent;
+
+/* Foco visible en todo lo interactivo, sin anillo al usar el mouse */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--liquid);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
 }
+
+::selection {
+  background: var(--liquid-glow);
+  color: var(--silver);
+}
+
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
-  background: var(--text-muted);
-  border-radius: 3px;
+  background: var(--edge-strong);
+  border-radius: var(--r-pill);
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--liquid-dim); }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ── Diálogo del lector ── */
+.memory-dialog-panel .mat-mdc-dialog-container .mdc-dialog__surface {
+  background: linear-gradient(180deg, var(--stone) 0%, var(--basin) 100%) !important;
+  border: 1px solid var(--edge) !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0, 0, 0, 0.4) !important;
+  overflow: hidden;
 }
 
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
-  50% { box-shadow: 0 0 40px var(--accent-glow), 0 0 60px rgba(129, 140, 248, 0.15); }
+.memory-dialog-panel .mat-mdc-dialog-container {
+  --mdc-dialog-container-color: transparent;
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.mat-mdc-dialog-container .mdc-dialog__surface {
-  background: var(--bg-secondary) !important;
-  border: 1px solid var(--border-glass) !important;
-  border-radius: var(--radius-lg) !important;
+.cdk-overlay-dark-backdrop {
+  background: rgba(3, 5, 9, 0.78);
+  backdrop-filter: blur(6px);
 }
 
 @media (max-width: 768px) {
-  .mat-mdc-dialog-container .mdc-dialog__surface {
-    margin: 16px !important;
-    max-width: calc(100vw - 32px) !important;
+  .memory-dialog-panel .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: var(--r-md) !important;
   }
 }
 
-.mat-mdc-paginator {
-  background: transparent !important;
-  color: var(--text-secondary) !important;
-}
-
-.mat-mdc-paginator .mat-mdc-paginator-icon {
-  fill: var(--text-secondary) !important;
-}
-
-.mat-mdc-paginator .mat-mdc-icon-button:not([disabled]) {
-  color: var(--accent-primary) !important;
-}
-
-.mat-mdc-paginator .mat-mdc-icon-button:not([disabled]) .mat-mdc-paginator-icon {
-  fill: var(--accent-primary) !important;
-}
-
-.mat-mdc-paginator .mat-mdc-paginator-range-label {
-  color: var(--text-muted) !important;
-  font-family: var(--font-body) !important;
-  font-size: 0.82rem !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.02em !important;
-}
-
-.mat-mdc-slider .mdc-slider__track--active_fill {
-  border-color: var(--accent-primary) !important;
-}
-.mat-mdc-slider .mdc-slider__track--inactive {
-  background-color: var(--border-glass) !important;
-}
-.mat-mdc-slider .mdc-slider__thumb-knob {
-  background-color: var(--accent-primary) !important;
-  border-color: var(--accent-primary) !important;
-}
-.mat-mdc-slider .mdc-slider__value-indicator {
-  background-color: var(--accent-primary) !important;
-}
-.mat-mdc-slider .mdc-slider__value-indicator::before {
-  border-top-color: var(--accent-primary) !important;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

@@ -1,6 +1,8 @@
 # El Pensadero
 
-Una aplicación web para visualizar pensamientos como una nube de palabras 3D interactiva. Los pensamientos orbitan en una esfera rotativa y al hacer clic en cualquiera se muestra su detalle completo.
+Un pensadero: los pensamientos sueltos que uno guarda, girando en una esfera de la que se puede sacar cualquiera.
+
+Dos formas de entrar: **Esfera**, para dejarse llevar entre las hebras que orbitan sobre la cuenca, y **Archivo**, para buscar algo concreto en una lista por meses. El color de cada hebra dice de dónde vino el pensamiento — escrito, capturado por IA o llegado por SMS al pensadero viejo.
 
 **[Ver sitio en vivo →](https://jorgenava.github.io/pensadero/)**
 
@@ -43,7 +45,7 @@ export const environment = {
 ng serve
 ```
 
-Navegar a `http://localhost:4200/pensadero/`.
+Navegar a `http://localhost:4200/`.
 
 ### Build de producción
 
@@ -75,10 +77,12 @@ También se puede disparar manualmente desde la pestaña **Actions** del reposit
 ```
 src/
 ├── app/
-│   ├── app.component.*          # Componente principal (tag cloud + header + búsqueda)
-│   ├── app.config.ts            # Configuración de la app (HttpClient, animations)
+│   ├── app.component.*          # Esfera, archivo, búsqueda y filtros
+│   ├── app.config.ts            # HttpClient, animaciones y locale es-MX
+│   ├── thought.utils.ts         # Origen, recortes, agrupación por mes, normalización de tags
+│   ├── highlight.pipe.ts        # Resalta coincidencias de búsqueda (escapa el texto antes)
 │   ├── thoughts.service.ts      # Servicio para obtener pensamientos de la API
-│   └── thought-dialog/          # Diálogo de detalle de pensamiento
+│   └── thought-dialog/          # El lector: un pensamiento a la vez, con navegación
 ├── environments/
 │   ├── environment.ts           # Config local (gitignored)
 │   └── environment.prod.ts      # Config producción (placeholders para CI)
@@ -87,21 +91,32 @@ src/
 
 ## Funcionalidades
 
-- **Nube 3D** — Pensamientos visualizados como esfera interactiva rotativa
-- **Zoom** — Acercar/alejar la esfera con botones (+/−) o scroll del mouse
-- **Densidad ajustable** — Slider para controlar cuántos pensamientos muestra la esfera (3 hasta el total)
-- **Búsqueda** — Filtrar pensamientos por contenido o tags en tiempo real
-- **Pensamiento aleatorio** — Botón para abrir un pensamiento al azar
-- **Detalle de pensamiento** — Diálogo con contenido, tags, fechas y metadata
-- **Copiar contenido** — Botón para copiar texto del pensamiento al clipboard
-- **Paginación** — Navegación por "esferas" de pensamientos
-- **Responsive** — Adaptado para mobile y desktop
-- **Loading state** — Indicador visual mientras se cargan los datos
+**Esfera**
+- Cada pensamiento es una hebra de una sola línea: el texto se recorta en palabra completa según el ancho de la pantalla, así que nunca se encima ni se sale
+- El tamaño va al revés de la extensión — los pensamientos de dos palabras se leen en grande
+- El color dice el origen: plata (escrito), agua (IA), latón (SMS)
+- Zoom con botones o scroll; slider de hebras por esfera; paginación con flechas del teclado
+
+**Archivo**
+- Tarjetas agrupadas por mes, en columnas que se acomodan al ancho
+- Los pensamientos de una línea se componen en la serif, como aforismos
+- Las coincidencias de búsqueda quedan resaltadas
+
+**En las dos**
+- Búsqueda por contenido o tag, con `/` para enfocar y `Esc` para limpiar
+- Riel de temas: los 12 tags más usados, uniendo variantes de escritura ("Filosofía" / "Filosofia")
+- `r` saca un pensamiento al azar
+- Lector con navegación entre pensamientos (`←` / `→`), copiar y ver más del mismo tema
+
+**Accesibilidad**
+- Las hebras y las tarjetas se pueden enfocar y abrir con el teclado
+- Foco visible en todo lo interactivo
+- `prefers-reduced-motion` detiene la rotación y las ondas
 
 ## TO-DO
 
 - [ ] Login / autenticación
 - [ ] Separar pensamientos por perfiles (tabs/menú)
 - [ ] CRUD de pensamientos (agregar, editar, eliminar)
-- [ ] Filtrar por tags con chips interactivos
-- [ ] Vista alternativa (lista/grid además de esfera)
+- [ ] Búsqueda que ignore acentos
+- [ ] Ver todos los tags, no solo los 12 más usados

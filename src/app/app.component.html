@@ -1,99 +1,159 @@
-<!-- Background ambient glow -->
-<div class="ambient-glow"></div>
-
-<!-- Header -->
-<header class="header">
-  <div class="header-left">
-    <div class="logo">
-      <span class="material-symbols-outlined logo-icon">psychology</span>
-      <h1 class="title">El Pensadero</h1>
+<header class="bar">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 28 28" aria-hidden="true">
+      <ellipse cx="14" cy="18" rx="10.5" ry="3.6" />
+      <path d="M3.5 18c0 3.4 4.7 5.6 10.5 5.6S24.5 21.4 24.5 18" />
+      <path d="M8.6 13.2a6.2 6.2 0 0 1 10.8 0" />
+      <circle cx="14" cy="6.6" r="1.7" />
+    </svg>
+    <div class="brand-text">
+      <h1>El Pensadero</h1>
+      <p class="span" *ngIf="span">{{ span }}</p>
     </div>
-    <span class="thought-count" *ngIf="!isLoading && thoughts.length > 0">
-      {{ filteredThoughts.length }} pensamiento{{ filteredThoughts.length !== 1 ? 's' : '' }}
-    </span>
   </div>
-  <div class="header-actions">
-    <div class="search-container" [class.active]="searchActive">
-      <span class="material-symbols-outlined search-icon">search</span>
+
+  <div class="modes" role="tablist" aria-label="Cómo ver los pensamientos">
+    <button role="tab" [attr.aria-selected]="mode === 'sphere'" [class.on]="mode === 'sphere'" (click)="setMode('sphere')">
+      Esfera
+    </button>
+    <button role="tab" [attr.aria-selected]="mode === 'archive'" [class.on]="mode === 'archive'" (click)="setMode('archive')">
+      Archivo
+    </button>
+  </div>
+
+  <div class="tools">
+    <div class="search" [class.filled]="searchQuery">
+      <span class="material-symbols-outlined" aria-hidden="true">search</span>
       <input
-        type="text"
-        class="search-input"
-        placeholder="Buscar pensamientos..."
+        #searchInput
+        type="search"
         [(ngModel)]="searchQuery"
         (input)="onSearch()"
-        (focus)="searchActive = true"
-        (blur)="searchActive = searchQuery.length > 0"
-      />
-      <span
-        class="material-symbols-outlined clear-icon"
-        *ngIf="searchQuery"
-        (click)="clearSearch()">
-        close
-      </span>
+        placeholder="Buscar"
+        aria-label="Buscar pensamientos"
+        autocomplete="off"
+        spellcheck="false" />
+      <button *ngIf="searchQuery" class="clear" (click)="clearSearch()" aria-label="Limpiar búsqueda">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+      <kbd *ngIf="!searchQuery">/</kbd>
     </div>
-    <button class="btn-random" (click)="openRandomThought()" *ngIf="filteredThoughts.length > 0" title="Pensamiento aleatorio">
-      <span class="material-symbols-outlined">casino</span>
+
+    <button class="pick" (click)="openRandom()" [disabled]="!filtered.length" title="Sacar uno al azar (r)">
+      <span class="material-symbols-outlined" aria-hidden="true">shuffle</span>
+      <span class="pick-label">Al azar</span>
     </button>
   </div>
 </header>
 
-<!-- Loading state -->
-<div class="loading-container" *ngIf="isLoading">
-  <div class="loading-sphere">
-    <div class="loading-ring"></div>
-    <span class="material-symbols-outlined loading-icon">psychology</span>
+<nav class="facets" *ngIf="!isLoading && facets.length" aria-label="Filtrar por tema">
+  <button *ngFor="let f of facets; trackBy: trackByKey" [class.on]="activeTag === f.key" (click)="toggleTag(f.key, f.label)">
+    {{ f.label }}<span class="n">{{ f.count }}</span>
+  </button>
+</nav>
+
+<div class="status" *ngIf="!isLoading && !failed">
+  <span class="count">{{ filtered.length }}</span>
+  <span class="count-word">{{ filtered.length === 1 ? 'pensamiento' : 'pensamientos' }}</span>
+  <ng-container *ngIf="hasFilter">
+    <span class="of">de {{ thoughts.length }}</span>
+    <span class="chip" *ngIf="activeTagOffRail">{{ activeTagLabel }}</span>
+    <button class="reset" (click)="clearAll()">Quitar filtros</button>
+  </ng-container>
+</div>
+
+<!-- Cargando -->
+<section class="center" *ngIf="isLoading">
+  <div class="ripple"><i></i><i></i><i></i></div>
+  <p>Sacando los pensamientos del pensadero…</p>
+</section>
+
+<!-- Error -->
+<section class="center" *ngIf="!isLoading && failed">
+  <p class="lead">El pensadero no respondió</p>
+  <p>No se pudieron traer los pensamientos. Recarga la página para intentarlo otra vez.</p>
+</section>
+
+<!-- Sin resultados -->
+<section class="center" *ngIf="!isLoading && !failed && !filtered.length">
+  <p class="lead" *ngIf="hasFilter">Nada coincide</p>
+  <p class="lead" *ngIf="!hasFilter">El pensadero está vacío</p>
+  <p *ngIf="hasFilter">Prueba otras palabras o quita el filtro de tema.</p>
+  <button class="reset" *ngIf="hasFilter" (click)="clearAll()">Quitar filtros</button>
+</section>
+
+<!-- ── Esfera ── -->
+<main #stage class="stage" *ngIf="!isLoading && !failed && filtered.length && mode === 'sphere'">
+  <div class="orb">
+    <div #sphere class="sphere"></div>
+    <div class="basin" aria-hidden="true"><i></i><i></i></div>
   </div>
-  <p class="loading-text">Cargando pensamientos...</p>
-</div>
 
-<!-- Empty state -->
-<div class="empty-state" *ngIf="!isLoading && filteredThoughts.length === 0">
-  <span class="material-symbols-outlined empty-icon">lightbulb</span>
-  <p class="empty-title" *ngIf="searchQuery">No se encontraron pensamientos</p>
-  <p class="empty-title" *ngIf="!searchQuery">No hay pensamientos disponibles</p>
-  <p class="empty-subtitle" *ngIf="searchQuery">Intenta con otra búsqueda</p>
-</div>
-
-<!-- Tag cloud -->
-<div class="cloud-wrapper" *ngIf="!isLoading && filteredThoughts.length > 0">
-  <div #tagCloudContainer class="words-sphere"></div>
-
-  <!-- Zoom controls -->
-  <div class="zoom-controls">
-    <button class="zoom-btn" (click)="zoomIn()" title="Acercar">
-      <span class="material-symbols-outlined">add</span>
-    </button>
-    <span class="zoom-label">{{ (zoomLevel * 100) | number:'1.0-0' }}%</span>
-    <button class="zoom-btn" (click)="zoomOut()" title="Alejar">
-      <span class="material-symbols-outlined">remove</span>
-    </button>
+  <div class="zoom">
+    <button (click)="zoomIn()" aria-label="Acercar"><span class="material-symbols-outlined" aria-hidden="true">add</span></button>
+    <span class="zoom-n">{{ zoom * 100 | number: '1.0-0' }}%</span>
+    <button (click)="zoomOut()" aria-label="Alejar"><span class="material-symbols-outlined" aria-hidden="true">remove</span></button>
   </div>
-</div>
+</main>
 
-<!-- Footer with controls -->
-<footer class="footer" *ngIf="!isLoading && filteredThoughts.length > 0">
-  <div class="footer-controls">
-    <div class="density-control">
-      <span class="material-symbols-outlined density-icon">grain</span>
-      <mat-slider
-        [min]="3"
-        [max]="totalFilteredThoughts"
-        [step]="1"
-        [discrete]="true"
-        class="density-slider">
-        <input matSliderThumb
-          [value]="pageSize"
-          (valueChange)="onDensityChange($event)" />
-      </mat-slider>
-      <span class="density-label">{{ pageSize }}</span>
+<!-- ── Archivo ── -->
+<main class="archive" *ngIf="!isLoading && !failed && filtered.length && mode === 'archive'">
+  <section class="month" *ngFor="let m of months; trackBy: trackByKey">
+    <h2 class="month-head"><span>{{ m.label }}</span><i></i><em>{{ m.thoughts.length }}</em></h2>
+
+    <div class="cards">
+      <article
+        class="card"
+        *ngFor="let t of m.thoughts; trackBy: trackById"
+        [class.aphorism]="!t.isLong && t.content.length <= 80"
+        [class.from-self]="t.origin === 'self'"
+        [class.from-ai]="t.origin === 'ai'"
+        [class.from-sms]="t.origin === 'sms'"
+        tabindex="0"
+        role="button"
+        [attr.aria-label]="'Abrir pensamiento: ' + t.excerpt"
+        (click)="openThought(t)"
+        (keydown.enter)="openThought(t)"
+        (keydown.space)="$event.preventDefault(); openThought(t)">
+        <p class="card-text" [innerHTML]="t.preview | highlight: searchQuery"></p>
+        <footer class="card-foot">
+          <time [attr.datetime]="t.createdAt">{{ t.createdAt | date: "d 'de' MMM" }}</time>
+          <span class="dot" [attr.title]="originLabel(t.origin)"></span>
+          <span class="card-tags" *ngIf="t.tagNames?.length">{{ t.tagNames.join(' · ') }}</span>
+        </footer>
+      </article>
     </div>
+  </section>
+</main>
 
-    <mat-paginator
-      [length]="totalFilteredThoughts"
-      [pageSize]="pageSize"
-      aria-label="Select page"
-      [hidePageSize]="true"
-      (page)="onPageChange($event)">
-    </mat-paginator>
+<!-- ── Controles de la esfera ── -->
+<footer class="bar bottom" *ngIf="!isLoading && !failed && filtered.length && mode === 'sphere'">
+  <ul class="legend" aria-label="El color dice de dónde vino el pensamiento">
+    <li><span class="dot from-self"></span>Escrito</li>
+    <li><span class="dot from-ai"></span>IA</li>
+    <li><span class="dot from-sms"></span>SMS</li>
+  </ul>
+
+  <div class="pager">
+    <button (click)="prevPage()" [disabled]="pageIndex === 0" aria-label="Esfera anterior">
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+    </button>
+    <span class="pager-n" aria-live="polite">{{ pageIndex + 1 }} / {{ pageCount }}</span>
+    <button (click)="nextPage()" [disabled]="pageIndex >= pageCount - 1" aria-label="Esfera siguiente">
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+    </button>
   </div>
+
+  <label class="density">
+    <span class="density-label">Hebras</span>
+    <input
+      type="range"
+      [min]="perSphereMin"
+      [max]="perSphereMax"
+      step="1"
+      [value]="perSphere"
+      (input)="onDensity($any($event.target).value)"
+      aria-label="Pensamientos por esfera" />
+    <span class="density-n">{{ perSphere }}</span>
+  </label>
 </footer>

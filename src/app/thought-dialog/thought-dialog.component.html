@@ -1,1 +1,38 @@
-<p>thought-dialog works!</p>
+<div class="reader" [class.from-self]="thought.origin === 'self'" [class.from-ai]="thought.origin === 'ai'" [class.from-sms]="thought.origin === 'sms'">
+  <header class="reader-bar">
+    <span class="origin"><i></i>{{ originLabel }}</span>
+    <time class="stamp" [attr.datetime]="thought.createdAt" *ngIf="thought.createdAt">
+      {{ thought.createdAt | date: "d 'de' MMMM 'de' y" }}
+    </time>
+    <span class="grow"></span>
+    <button class="ghost" (click)="copy()" [attr.aria-label]="copied ? 'Copiado' : 'Copiar pensamiento'">
+      <span class="material-symbols-outlined" aria-hidden="true">{{ copied ? 'check' : 'content_copy' }}</span>
+    </button>
+    <button class="ghost" (click)="close()" aria-label="Cerrar">
+      <span class="material-symbols-outlined" aria-hidden="true">close</span>
+    </button>
+  </header>
+
+  <div class="reader-body" tabindex="0">
+    <p class="opening" *ngIf="thought.opening">{{ thought.opening }}</p>
+    <p class="text" [class.solo]="!thought.opening" [class.brief]="!thought.isLong">{{ thought.body }}</p>
+
+    <div class="tags" *ngIf="thought.tagNames?.length">
+      <button *ngFor="let tag of thought.tagNames" (click)="showTag(tag)" [attr.aria-label]="'Ver todo lo de ' + tag">
+        {{ tag }}
+      </button>
+    </div>
+  </div>
+
+  <footer class="reader-foot" *ngIf="total > 1">
+    <button (click)="prev()" [disabled]="index === 0">
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+      Anterior
+    </button>
+    <span class="pos">{{ index + 1 }} de {{ total }}</span>
+    <button (click)="next()" [disabled]="index >= total - 1">
+      Siguiente
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+    </button>
+  </footer>
+</div>
